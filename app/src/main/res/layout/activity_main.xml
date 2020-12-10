@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="10dp"
+    android:orientation="vertical"
+    android:paddingRight="10dp"
+    tools:context=".MainActivity">
+
+    <Button
+        android:id="@+id/btn_creat_file"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="在SD卡下创建文件"/>
+
+    <Button
+        android:id="@+id/btn_save_bitmap_old"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="保存图片到相册 - 通过File"/>
+
+    <Button
+        android:id="@+id/btn_save_bitmap_new"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAllCaps="false"
+        android:text="保存图片到相册 - 通过ContentProvider"/>
+
+
+    <Button
+        android:id="@+id/btn_photo_album"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAllCaps="false"
+        android:text="打开相册"/>
+
+    <Button
+        android:id="@+id/btn_camera"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAllCaps="false"
+        android:text="打开相机"/>
+
+    <Button
+        android:id="@+id/btn_camera_tailor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAllCaps="false"
+        android:text="打开相机-同时裁剪"/>
+
+    <Button
+        android:id="@+id/btn_camera_compress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAllCaps="false"
+        android:text="打开相册-同时压缩"/>
+
+
+    <ImageView
+        android:id="@+id/iv_photo"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"/>
+
+
+</LinearLayout>
