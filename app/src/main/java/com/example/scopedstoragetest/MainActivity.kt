@@ -8,7 +8,6 @@ import android.os.Environment
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import coil.load
-import com.example.common.media.CaptureStrategy
 import com.example.common.media.MediaStoreCompat
 import com.example.common.permission.PermissionListener
 import com.example.common.permission.PermissionRequest
@@ -34,21 +33,22 @@ class MainActivity : AppCompatActivity() {
 
     private val write = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     private val camera = arrayOf(Manifest.permission.CAMERA)
-    private val cameraAndWrite = arrayOf(Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    private val cameraAndWrite = arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
         initOnClick()
-        mediaStoreCompat.setCaptureStrategy(CaptureStrategy(true, "$packageName.fileProvider"))
     }
 
     private fun initOnClick() {
         //**********************************************测试 - File访问SD卡*******************************************************
         //在SD卡下创建文件
         binding.btnCreatFile.setOnClickListener {
-            testCreateFile()
+            requestPermissions(write) {
+                testCreateFile()
+            }
         }
 
         //************************************************保存图片到相册************************************************
@@ -59,8 +59,10 @@ class MainActivity : AppCompatActivity() {
          * 失败抛出异常
          */
         binding.btnSaveBitmapOld.setOnClickListener {
-            lifecycleScope.launch {
-                saveImage(getBitmap(200f.dp.toInt(), resources, R.drawable.android))
+            requestPermissions(write) {
+                lifecycleScope.launch {
+                    saveImage(getBitmap(200f.dp.toInt(), resources, R.drawable.android))
+                }
             }
         }
         /**
@@ -68,8 +70,10 @@ class MainActivity : AppCompatActivity() {
          * 不需要读写权限  不支持分区存储
          */
         binding.btnSaveBitmapNew.setOnClickListener {
-            lifecycleScope.launch {
-                saveBitmapToPictures(AppContext, getBitmap(200f.dp.toInt(), resources, R.drawable.android))
+            requestPermissions(write) {
+                lifecycleScope.launch {
+                    saveBitmapToPictures(AppContext, getBitmap(200f.dp.toInt(), resources, R.drawable.android))
+                }
             }
         }
 
@@ -92,7 +96,7 @@ class MainActivity : AppCompatActivity() {
          *
          */
         binding.btnCamera.setOnClickListener {
-            requestPermissions(camera){
+            requestPermissions(cameraAndWrite) {
                 mediaStoreCompat.dispatchCaptureIntent(REQUEST_CODE_CAPTURE)
             }
         }
@@ -104,7 +108,7 @@ class MainActivity : AppCompatActivity() {
          * 需要CAMERA权限、需要读写权限    - 通过File创建文件-》FileProvider获取Uri
          */
         binding.btnCameraTailor.setOnClickListener {
-            requestPermissions(camera){
+            requestPermissions(camera) {
                 mediaStoreCompat.dispatchCaptureIntent(REQUEST_CODE_CAPTURE_CLIP)
             }
         }
@@ -122,7 +126,7 @@ class MainActivity : AppCompatActivity() {
      * 关闭分区存储+读写权限   创建成功
      */
     private fun testCreateFile() {
-        val file = File(Environment.getExternalStorageDirectory(), "AndroidDarren")
+        val file = File(Environment.getExternalStorageDirectory(), "AndroidDa")
         file.delete()
         if (!file.exists()) {
             logd("${file.absolutePath} 创建文件是否成功：${file.mkdir()}   是否开启兼容模式 ${Environment.isExternalStorageLegacy()}")

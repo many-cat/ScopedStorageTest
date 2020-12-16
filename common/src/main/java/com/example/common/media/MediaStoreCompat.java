@@ -26,21 +26,16 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 
-import androidx.core.content.FileProvider;
-import androidx.core.os.EnvironmentCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.common.tools.FileUtilsKt;
-import com.example.common.tools.FormatterUtilsKt;
 
-import java.io.File;
 import java.lang.ref.WeakReference;
 
 public class MediaStoreCompat {
 
     private final WeakReference<Activity> mContext;
     private final WeakReference<Fragment> fragment;
-    private CaptureStrategy captureStrategy;
     //选中的图片地址
     private Uri currentPhotoUri;
     //裁剪后图片地址
@@ -67,10 +62,6 @@ public class MediaStoreCompat {
         return pm.hasSystemFeature(PackageManager.FEATURE_CAMERA);
     }
 
-    public void setCaptureStrategy(CaptureStrategy strategy) {
-        captureStrategy = strategy;
-    }
-
     /**
      * 调起相机
      */
@@ -87,29 +78,9 @@ public class MediaStoreCompat {
      * 相册中插入图片
      */
     private Uri insertPhoto() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            currentPhotoUri = createImageUri();
-        } else {
-            File photoFile = createImageFile();
-            if (photoFile != null) {
-                currentPhotoUri = FileProvider.getUriForFile(mContext.get(), captureStrategy.authority, photoFile);
-            }
-        }
+        currentPhotoUri = createImageUri();
         return currentPhotoUri;
     }
-
-    /**
-     * 相册中插入裁切图片
-     */
-    private Uri insertClipPhoto() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            currentClipUri = createImageUri();
-        } else {
-            currentClipUri = Uri.fromFile(createImageFile());
-        }
-        return currentClipUri;
-    }
-
 
     /**
      * 创建图片地址uri,用于保存拍照后的照片 Android10 以后使用
@@ -169,39 +140,6 @@ public class MediaStoreCompat {
         } else {
             mContext.get().startActivityForResult(intent, request);
         }
-    }
-
-    /**
-     * 创建图片地址，用于保存图片
-     *
-     * @return
-     */
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    private File createImageFile() {
-        // Create an image file name
-        String timeStamp = FormatterUtilsKt.formatDate(System.currentTimeMillis(), "yyyyMMdd_HHmmss");
-        String imageFileName = String.format("JPEG_%s.jpg", timeStamp);
-        File storageDir;
-        if (captureStrategy.isPublic) {
-            storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-            if (!storageDir.exists()) storageDir.mkdirs();
-        } else {
-            storageDir = mContext.get().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        }
-        if (captureStrategy.directory != null) {
-            storageDir = new File(storageDir, captureStrategy.directory);
-            if (!storageDir.exists()) storageDir.mkdirs();
-        }
-
-        // Avoid joining path components manually
-        File tempFile = new File(storageDir, imageFileName);
-
-        // Handle the situation that user's external storage is not ready
-        if (!Environment.MEDIA_MOUNTED.equals(EnvironmentCompat.getStorageState(tempFile))) {
-            return null;
-        }
-
-        return tempFile;
     }
 
     public Uri getCurrentClipUri() {
