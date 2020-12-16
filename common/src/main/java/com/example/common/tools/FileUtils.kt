@@ -55,6 +55,28 @@ suspend fun saveImage(bitmap: Bitmap): String? = withContext(Dispatchers.IO) {
 suspend fun saveBitmapToPictures(context: Context, bitmap: Bitmap): Boolean = withContext(
     Dispatchers.IO
 ) {
+    context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, getImagesContentValues())?.let {
+        try {
+            context.contentResolver.openOutputStream(it).use {
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
+                logd("保存图片成功")
+                return@withContext true
+            }
+        } catch (exception: FileNotFoundException) {
+            exception.printStackTrace()
+            logd("保存图片失败 FileOutputStream 抛出异常 $exception")
+            return@withContext false
+        }
+    }
+    false
+}
+
+/**
+ *  PATH ： 相册路径
+ *  MIME_TYPE ： image/jpeg
+ *  DISPLAY_NAME： fileName
+ */
+fun getImagesContentValues(): ContentValues {
     val fileName = "${System.currentTimeMillis()}.jpg"
     val contentValues = ContentValues().apply {
         put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
@@ -70,20 +92,7 @@ suspend fun saveBitmapToPictures(context: Context, bitmap: Bitmap): Boolean = wi
         }
         contentValues.put(MediaStore.MediaColumns.DATA, path + File.separator + fileName)
     }
-    context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)?.let {
-        try {
-            context.contentResolver.openOutputStream(it).use {
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
-                logd("保存图片成功")
-                return@withContext true
-            }
-        } catch (exception: FileNotFoundException) {
-            exception.printStackTrace()
-            logd("保存图片失败 FileOutputStream 抛出异常 $exception")
-            return@withContext false
-        }
-    }
-    false
+    return contentValues
 }
 
 

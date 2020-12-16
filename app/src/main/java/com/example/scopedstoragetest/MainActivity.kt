@@ -33,6 +33,8 @@ class MainActivity : AppCompatActivity() {
     private val permissionRequest by easyLazy { PermissionRequest(this) }
 
     private val write = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    private val camera = arrayOf(Manifest.permission.CAMERA)
+    private val cameraAndWrite = arrayOf(Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,7 +92,9 @@ class MainActivity : AppCompatActivity() {
          *
          */
         binding.btnCamera.setOnClickListener {
-            mediaStoreCompat.dispatchCaptureIntent(REQUEST_CODE_CAPTURE)
+            requestPermissions(camera){
+                mediaStoreCompat.dispatchCaptureIntent(REQUEST_CODE_CAPTURE)
+            }
         }
 
         /**
@@ -100,7 +104,9 @@ class MainActivity : AppCompatActivity() {
          * 需要CAMERA权限、需要读写权限    - 通过File创建文件-》FileProvider获取Uri
          */
         binding.btnCameraTailor.setOnClickListener {
-            mediaStoreCompat.dispatchCaptureIntent(REQUEST_CODE_CAPTURE_CLIP)
+            requestPermissions(camera){
+                mediaStoreCompat.dispatchCaptureIntent(REQUEST_CODE_CAPTURE_CLIP)
+            }
         }
 
 

@@ -17,7 +17,6 @@ package com.example.common.media;
 
 import android.app.Activity;
 import android.content.ClipData;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -31,6 +30,7 @@ import androidx.core.content.FileProvider;
 import androidx.core.os.EnvironmentCompat;
 import androidx.fragment.app.Fragment;
 
+import com.example.common.tools.FileUtilsKt;
 import com.example.common.tools.FormatterUtilsKt;
 
 import java.io.File;
@@ -113,7 +113,7 @@ public class MediaStoreCompat {
 
     /**
      * 创建图片地址uri,用于保存拍照后的照片 Android10 以后使用
-     *
+     * <p>
      * Android10不需要读写权限  Android10以前需要读写权限
      *
      * @return 图片的uri
@@ -121,9 +121,9 @@ public class MediaStoreCompat {
     private Uri createImageUri() {
         String status = Environment.getExternalStorageState();
         if (status.equals(Environment.MEDIA_MOUNTED)) {
-            return mContext.get().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, new ContentValues());
+            return mContext.get().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, FileUtilsKt.getImagesContentValues());
         } else {
-            return mContext.get().getContentResolver().insert(MediaStore.Images.Media.INTERNAL_CONTENT_URI, new ContentValues());
+            return mContext.get().getContentResolver().insert(MediaStore.Images.Media.INTERNAL_CONTENT_URI, FileUtilsKt.getImagesContentValues());
         }
     }
 
@@ -138,6 +138,7 @@ public class MediaStoreCompat {
     }
 
     public void startPhotoZoom(Uri uri, int request) {
+        currentClipUri = uri;
         Intent intent = new Intent("com.android.camera.action.CROP");
         intent.setDataAndType(uri, "image/*");
         intent.putExtra("crop", "true");
@@ -154,8 +155,8 @@ public class MediaStoreCompat {
         intent.putExtra("scale", true);
 
         intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.setClipData(ClipData.newRawUri(MediaStore.EXTRA_OUTPUT, uri));
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, insertClipPhoto());//裁剪完的图片保存的路径
+        intent.setClipData(ClipData.newRawUri(MediaStore.EXTRA_OUTPUT, currentClipUri));
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, currentClipUri);//裁剪完的图片保存的路径
         intent.putExtra("return-data", false);
         intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
         intent.putExtra("noFaceDetection", true);
@@ -172,6 +173,7 @@ public class MediaStoreCompat {
 
     /**
      * 创建图片地址，用于保存图片
+     *
      * @return
      */
     @SuppressWarnings("ResultOfMethodCallIgnored")
