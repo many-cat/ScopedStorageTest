@@ -15,13 +15,19 @@
 
 ### 测试 - File访问SD卡
 
-[sd卡下创建文件](https://www.notion.so/29467ce83b8a4466bd08825824546899)
+|  分区存储是否开启   | 是否需要读写权限  |创建是否成功|error|
+|  ----  | ----  |----|----|
+| 开启  | 需要 |失败|FileOutputStream throws FileNotFoundException|
+| 关闭  | 需要 |成功| |
 
 # 适配
 
 ### 一、保存Bitmap到相册
 
-[保存bitmap到相册](https://www.notion.so/d6812391473d48cead4c417b202fe0af)
+|  保存图片方式   | 是否需要读写权限  |是否支持分区存储|开启分区存储|
+|  ----  | ----  |----|----|
+| FileOutputStream  | 需要写权限  |不支持|FileOutputStream throws FileNotFoundException|
+| ContentProvider.insert  | 开启分区存储-不需要  未开启分区存储-需要写权限 |支持| success|
 
 ## 1. saveBitmap-File
 
@@ -190,7 +196,12 @@ private fun getAppPicturePath(): String {
 
 3. onActivityResult适配 -统一使用Uri来操作图片
 
-[权限](https://www.notion.so/907826dcf6fd48ae82d422e1828ad1ea)
+|  Action   | 权限说明 - 开启分区存储  |权限说明 - 未开启分区存储|
+|  ----  | ----  |----|
+| 调用系统相册后展示图片-contentResolver.openInputStream(Uri) | 不需要  |不需要|
+| 指定相册插入位置-通过创建File获取插入Uri | 不支持-throws FileNotFoundException |需要写权限|
+| 指定相册插入位置-ContentProvider.insert | 不需要读写权限 |需要写权限|
+
 
 ### 二、上传图片 - Luban压缩适配
 
